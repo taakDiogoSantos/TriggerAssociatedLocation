@@ -3,6 +3,11 @@
 //     query text and running the command:
 //     SFDX: Execute SOQL Query with Currently Selected Text
 
-SELECT Id FROM Account;
+SELECT Id, Name FROM Account;
 
 SELECT AccountId, UserId from AccountTeamMember
+
+SELECT Name, Id FROM User
+
+SELECT Name, Id FROM Associated_Location__c 
+
