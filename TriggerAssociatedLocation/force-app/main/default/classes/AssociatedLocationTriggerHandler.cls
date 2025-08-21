@@ -1,6 +1,8 @@
 public with sharing class AssociatedLocationTriggerHandler {
 
-    public void whenInsert() {}
+    public static void whenInsert(List<Associated_Location__c> newALs) {
+        AssociatedLocationTriggerHelper.verifyAccount(newALs);
+    }
 
    
 }

@@ -3,8 +3,13 @@
 //     apex text and running the command:
 //     SFDX: Execute Anonymous Apex with Currently Selected Text
 // You can also execute the entire file by running the command:
-//     SFDX: Execute Anonymous Apex with Editor Contents
 
-string tempvar = 'Enter_your_name_here';
-System.debug('Hello World!');
-System.debug('My name is ' + tempvar);
+List<User> userDiogo = [SELECT Id FROM User WHERE Name = 'Diogo Santos Rodrigues' LIMIT 1];
+List<Account> AccountTest = [SELECT Id FROM Account WHERE Name = 'Sr Test' LIMIT 1];
+
+Associated_Location__c AL = new Associated_Location__c();
+    AL.Name = 'Test Location';
+    AL.Account__c = AccountTest[0].Id;
+   AL.User__c = userDiogo[0].Id;
+
+insert AL;
