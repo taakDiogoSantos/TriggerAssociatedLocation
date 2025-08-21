@@ -2,14 +2,24 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     
 
-    public static void verifyAccount( ) {
-        //Get all the account team members
+    public static void VerifyUserAlreadyInAccount( ) {
+        
         List<Associated_Location__c> MapNewRecords = Trigger.new;
-        List<AccountTeamMember> AccountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember];
+        
+        //get AccountId from the Records to insert
+        Set<Id> SetAccountIds = new Set<Id>();
+        for(Associated_Location__c iAssociatedLocation : MapNewRecords) {
+            SetAccountIds.add(iAssociatedLocation.Account__c);
+        }
+
+        //Get all the AccountTeamMembers related to the AccountIds
+        List<AccountTeamMember> AccountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN : SetAccountIds];
         Map<Id, AccountTeamMember> MapAccountTeamMember = new Map<Id, AccountTeamMember>();
         for(AccountTeamMember atm : AccountTeamMemberList) {
             MapAccountTeamMember.put(atm.UserId, atm);
         }
+
+        List<AccountTeamMember> AccountTeamMembersToInsert = new List<AccountTeamMember>();
 
         for(Associated_Location__c iAssociatedLocation : MapNewRecords) {
             //verify if the account team member is already there
@@ -19,9 +29,10 @@ public with sharing class AssociatedLocationTriggerHelper {
                 AccountTeamMember atm = new AccountTeamMember();
                 atm.AccountId = iAssociatedLocation.Account__c;
                 atm.UserId = iAssociatedLocation.User__c;
-                insert atm;
+                AccountTeamMembersToInsert.add(atm);
             }
         }
+        insert accountTeamMembersToInsert;
 
     }
 

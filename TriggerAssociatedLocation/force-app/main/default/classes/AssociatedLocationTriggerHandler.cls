@@ -38,6 +38,6 @@ public with sharing class AssociatedLocationTriggerHandler {
     }
 
    public void AfterDelete() {
-        //AssociatedLocationTriggerHelper.accountHaveAnotherAL(this.oldRecordMap);
+        AssociatedLocationTriggerHelper.accountHaveAnotherAL(this.oldRecordMap);
    }
 }
