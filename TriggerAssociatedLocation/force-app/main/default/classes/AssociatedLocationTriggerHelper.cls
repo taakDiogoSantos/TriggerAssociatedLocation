@@ -96,35 +96,36 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     //method that executes when account updates
     public static void accountWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
-        Boolean alteracao = false;
+
+    List<AccountTeamMember> AccountTeamMembersToinsert = new List<AccountTeamMember>();
         for(Associated_Location__c al : newRecordMap.values()) {
             if(al.Account__c != oldRecordMap.get(al.Id).Account__c) {
-                alteracao = true;
-                break;
+                AccountTeamMember newAccountTeamMember = new AccountTeamMember();
+                newAccountTeamMember.AccountId = al.Account__c;
+                newAccountTeamMember.userId = al.User__c;
+                AccountTeamMembersToinsert.add(newAccountTeamMember);
             }
         }
-        if(!alteracao) return;
 
-        set<Id> accIds = new Set<Id>();
-        set<Id> userIds = new Set<Id>();
+        if(AccountTeamMembersToinsert.size() > 0) insert AccountTeamMembersToinsert;
+        else return;
+
+
+            
+            set<Id> accIds = new Set<Id>();
+            set<Id> userIds = new Set<Id>();
         for(Associated_Location__c oldAls : oldRecordMap.values()) {
-            if(newRecordMap.get(oldAls.Id).User__c == oldAls.User__c && newRecordMap.get(oldAls.Id).Account__c == oldAls.Account__c) {} 
+            if(newRecordMap.get(oldAls.Id)?.User__c == oldAls.User__c && newRecordMap.get(oldAls.Id)?.Account__c == oldAls.Account__c) {} 
             else {
                 accIds.add(oldAls.Account__c);
                 userIds.add(oldAls.User__c);}
             
         }
 
+
         if(!userIds.isEmpty()) {
-            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id, AccountId, UserId from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
-            for(AccountTeamMember atm : accounttemMembersToDelete) {
-                for(Associated_Location__c oldAls : oldRecordMap.values()) {
-                    if(atm.AccountId == oldAls.Account__c && atm.UserId == oldAls.User__c) {
-                        atm.AccountId = oldAls.Account__c;
-                    }
-                }
-            }
-            update accounttemMembersToDelete;
+            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
+            delete accounttemMembersToDelete;
         }
-    }
-}
+
+}}
