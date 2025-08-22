@@ -34,10 +34,10 @@ public with sharing class AssociatedLocationTriggerHandler {
     
 
     public void AfterInsert() {
-        AssociatedLocationTriggerHelper.verifyAccount();
+        AssociatedLocationTriggerHelper.VerifyUserAlreadyInAccount();
     }
 
    public void AfterDelete() {
-        AssociatedLocationTriggerHelper.accountHaveAnotherAL(this.oldRecordMap);
+        AssociatedLocationTriggerHelper.AssociatedLocationHaveAccountTeamMember(this.oldRecordList);
    }
 }

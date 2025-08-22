@@ -15,7 +15,7 @@ public with sharing class TestAssociatedLocationHelper {
             User__c = testUser.Id);
             List<Associated_Location__c> newALs = new List<Associated_Location__c>{testLocation}; 
         Test.startTest();
-        AssociatedLocationTriggerHelper.verifyAccount(newALs);
+        insert newALs;
         Test.stopTest();
     }
 }

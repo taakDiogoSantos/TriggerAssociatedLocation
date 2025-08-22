@@ -4,44 +4,59 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     public static void VerifyUserAlreadyInAccount( ) {
         
-        List<Associated_Location__c> MapNewRecords = Trigger.new;
+        List<Associated_Location__c> listNewRecords = Trigger.new;
         
         //get AccountId from the Records to insert
         Set<Id> SetAccountIds = new Set<Id>();
-        for(Associated_Location__c iAssociatedLocation : MapNewRecords) {
+        for(Associated_Location__c iAssociatedLocation : listNewRecords) {
             SetAccountIds.add(iAssociatedLocation.Account__c);
         }
 
         //Get all the AccountTeamMembers related to the AccountIds
         List<AccountTeamMember> AccountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN : SetAccountIds];
-        Map<Id, AccountTeamMember> MapAccountTeamMember = new Map<Id, AccountTeamMember>();
-        for(AccountTeamMember atm : AccountTeamMemberList) {
-            MapAccountTeamMember.put(atm.UserId, atm);
+
+        //variables to suport the insert validation
+        List<AccountTeamMember> AccountTeamMembersToInsert = new List<AccountTeamMember>();
+        
+
+        for(Associated_Location__c iAssociatedLocation : listNewRecords) {
+            Boolean repetido = false;
+            for(AccountTeamMember atm : AccountTeamMemberList) {
+                if(atm.UserId == iAssociatedLocation.User__c && atm.AccountId == iAssociatedLocation.Account__c) {
+                    repetido = true;
+                    break; 
+                } 
+            }               
+            if(!repetido) {
+                AccountTeamMember newAccountTeamMember = new AccountTeamMember();
+                newAccountTeamMember.AccountId = iAssociatedLocation.Account__c;
+                newAccountTeamMember.UserId = iAssociatedLocation.User__c;
+                AccountTeamMembersToInsert.add(newAccountTeamMember);
+            }
+       }
+        insert accountTeamMembersToInsert;
+}
+
+    public static void AssociatedLocationHaveAccountTeamMember(List<Associated_Location__c> oldRecordList) {
+        
+        Set<Id> accountIds = new Set<Id>();
+        Set<Id> userIds = new Set<Id>();
+        for(Associated_Location__c al : oldRecordList) {           
+             accountIds.add(al.Account__c);
+             userIds.add(al.User__c);           
         }
 
-        List<AccountTeamMember> AccountTeamMembersToInsert = new List<AccountTeamMember>();
+        List<AccountTeamMember> accountTeamMembersSameAccountSameId = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN :accountIds AND UserId IN :userIds];
 
-        for(Associated_Location__c iAssociatedLocation : MapNewRecords) {
-            //verify if the account team member is already there
-            if(MapAccountTeamMember.containsKey(iAssociatedLocation.User__c) && MapAccountTeamMember.get(iAssociatedLocation.User__c).AccountId == iAssociatedLocation.Account__c) {
-                // Do nothing                
-            } else { //if not create a new account Member
-                AccountTeamMember atm = new AccountTeamMember();
-                atm.AccountId = iAssociatedLocation.Account__c;
-                atm.UserId = iAssociatedLocation.User__c;
-                AccountTeamMembersToInsert.add(atm);
+        List<AccountTeamMember> accountTeamMembersToDelete = new List<AccountTeamMember>();
+        for(AccountTeamMember atm : accountTeamMembersSameAccountSameId) {
+            if(accountIds.contains(atm.AccountId) && userIds.contains(atm.UserId)) {
+                accountTeamMembersToDelete.add(atm);
             }
         }
-        insert accountTeamMembersToInsert;
 
-    }
+        delete accountTeamMembersToDelete;
 
-    public static void accountHaveAnotherAL(Map<Id, Associated_Location__c> oldALs) {
-        
-        Map<Id, Associated_Location__c> mapAL = new Map<Id, Associated_Location__c>(oldALs);
-        if(mapAL.isEmpty()) {
-            return;
-        }
         
     }
 }

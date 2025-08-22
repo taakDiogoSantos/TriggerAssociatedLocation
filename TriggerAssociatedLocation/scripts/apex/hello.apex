@@ -5,10 +5,10 @@
 // You can also execute the entire file by running the command:
 
 List<User> userDiogo = [SELECT Id FROM User WHERE Name = 'Diogo Santos Rodrigues' LIMIT 1];
-List<Account> AccountTest = [SELECT Id FROM Account WHERE Name = 'United Oil & Gas Corp.' LIMIT 1];
+List<Account> AccountTest = [SELECT Id FROM Account WHERE Name = 'Dickenson plc' LIMIT 1];
 
 Associated_Location__c AL = new Associated_Location__c();
-    AL.Name = 'Test Location 5';
+    AL.Name = 'Test Location 7';
     AL.Account__c = AccountTest[0].Id;
     AL.User__c = userDiogo[0].Id;
 
