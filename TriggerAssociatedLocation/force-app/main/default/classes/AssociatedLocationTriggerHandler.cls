@@ -43,5 +43,6 @@ public with sharing class AssociatedLocationTriggerHandler {
 
    public void AfterUpdate() {
     AssociatedLocationTriggerHelper.userWasUpdated(this.oldRecordMap, this.newRecordMap);
+    AssociatedLocationTriggerHelper.accountWasUpdated(this.oldRecordMap, this.newRecordMap);
    }
 }
