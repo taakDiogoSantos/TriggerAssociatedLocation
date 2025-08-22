@@ -13,7 +13,11 @@ public with sharing class TestAssociatedLocationHelper {
         Associated_Location__c testLocation = new Associated_Location__c(
             Account__c = testAccount.Id,
             User__c = testUser.Id);
-            List<Associated_Location__c> newALs = new List<Associated_Location__c>{testLocation}; 
+
+             Associated_Location__c testRepeatedLocation = new Associated_Location__c(
+            Account__c = testAccount.Id,
+            User__c = testUser.Id);
+            List<Associated_Location__c> newALs = new List<Associated_Location__c>{testLocation, testRepeatedLocation}; 
         Test.startTest();
         insert newALs;
         Test.stopTest();

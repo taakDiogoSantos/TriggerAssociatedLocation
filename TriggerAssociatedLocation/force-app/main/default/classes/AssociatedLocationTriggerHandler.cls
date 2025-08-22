@@ -40,4 +40,8 @@ public with sharing class AssociatedLocationTriggerHandler {
    public void AfterDelete() {
         AssociatedLocationTriggerHelper.AssociatedLocationHaveAccountTeamMember(this.oldRecordList);
    }
+
+   public void AfterUpdate() {
+    AssociatedLocationTriggerHelper.userWasUpdated(this.oldRecordMap, this.newRecordMap);
+   }
 }

@@ -16,7 +16,7 @@ trigger AssociatedLocationTrigger on Associated_Location__c (after insert, after
                 handler.AfterDelete();
             }
             when AFTER_UPDATE {
-                //handler.AfterUpdate();
+                handler.AfterUpdate();
             }  
         }
     }

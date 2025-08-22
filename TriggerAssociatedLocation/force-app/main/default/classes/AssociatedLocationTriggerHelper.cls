@@ -1,7 +1,7 @@
 public with sharing class AssociatedLocationTriggerHelper {    
 
     
-
+//trigger that verify if the user is already in the account team, if not it adds the user to the account team
     public static void VerifyUserAlreadyInAccount( ) {
         
         List<Associated_Location__c> listNewRecords = Trigger.new;
@@ -37,6 +37,7 @@ public with sharing class AssociatedLocationTriggerHelper {
         insert accountTeamMembersToInsert;
 }
 
+//trigger that verify if the associated location is deleted, if so it removes the user from the account team
     public static void AssociatedLocationHaveAccountTeamMember(List<Associated_Location__c> oldRecordList) {
         
         Set<Id> accountIds = new Set<Id>();
@@ -56,7 +57,39 @@ public with sharing class AssociatedLocationTriggerHelper {
         }
 
         delete accountTeamMembersToDelete;
+    }
 
-        
+    //trigger that verify if the user from the AL was update, if so create new accountTeamMember
+    public static void userWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
+        List<AccountTeamMember> AccountTeamMembersToinsert = new List<AccountTeamMember>();
+        for(Associated_Location__c al : newRecordMap.values()) {
+            if(al.User__c != oldRecordMap.get(al.Id).User__c) {
+                AccountTeamMember newAccountTeamMember = new AccountTeamMember();
+                newAccountTeamMember.AccountId = al.Account__c;
+                newAccountTeamMember.userId = al.User__c;
+                AccountTeamMembersToinsert.add(newAccountTeamMember);
+
+            }
+        }
+
+        if(AccountTeamMembersToinsert.size() > 0) {
+            insert AccountTeamMembersToinsert;}
+
+            
+            set<Id> accIds = new Set<Id>();
+            set<Id> userIds = new Set<Id>();
+        for(Associated_Location__c oldAls : oldRecordMap.values()) {
+            if(newRecordMap.get(oldAls.Id)?.User__c == oldAls.account__c && newRecordMap.get(oldAls.Id)?.Account__c == oldAls.Account__c) {} 
+            else {
+                accIds.add(oldAls.Account__c);
+                userIds.add(oldAls.User__c);}
+            
+        }
+
+
+        if(!userIds.isEmpty()) {
+            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
+            delete accounttemMembersToDelete;
+        }
     }
 }
