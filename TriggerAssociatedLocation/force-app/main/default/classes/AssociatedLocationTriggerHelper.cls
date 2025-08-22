@@ -97,9 +97,11 @@ public with sharing class AssociatedLocationTriggerHelper {
     //method that executes when account updates
     public static void accountWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
 
-    List<AccountTeamMember> AccountTeamMembersToinsert = new List<AccountTeamMember>();
+        //Same code as before but the condition on the if before insert is now checking the same account instead of user
+        //need fix later, to reduce code
+        List<AccountTeamMember> AccountTeamMembersToinsert = new List<AccountTeamMember>();
         for(Associated_Location__c al : newRecordMap.values()) {
-            if(al.Account__c != oldRecordMap.get(al.Id).Account__c) {
+            if(al.Account__c != oldRecordMap.get(al.Id).Account__c) {//if theres a change on the accounts create nem ATMs for the user on the account
                 AccountTeamMember newAccountTeamMember = new AccountTeamMember();
                 newAccountTeamMember.AccountId = al.Account__c;
                 newAccountTeamMember.userId = al.User__c;
@@ -114,7 +116,7 @@ public with sharing class AssociatedLocationTriggerHelper {
             
             set<Id> accIds = new Set<Id>();
             set<Id> userIds = new Set<Id>();
-        for(Associated_Location__c oldAls : oldRecordMap.values()) {
+        for(Associated_Location__c oldAls : oldRecordMap.values()) {// get and delete the old ones
             if(newRecordMap.get(oldAls.Id)?.User__c == oldAls.User__c && newRecordMap.get(oldAls.Id)?.Account__c == oldAls.Account__c) {} 
             else {
                 accIds.add(oldAls.Account__c);
