@@ -108,17 +108,23 @@ public with sharing class AssociatedLocationTriggerHelper {
         set<Id> accIds = new Set<Id>();
         set<Id> userIds = new Set<Id>();
         for(Associated_Location__c oldAls : oldRecordMap.values()) {
-            if(newRecordMap.get(oldAls.Id)?.User__c == oldAls.User__c && newRecordMap.get(oldAls.Id)?.Account__c == oldAls.Account__c) {} 
+            if(newRecordMap.get(oldAls.Id).User__c == oldAls.User__c && newRecordMap.get(oldAls.Id).Account__c == oldAls.Account__c) {} 
             else {
                 accIds.add(oldAls.Account__c);
                 userIds.add(oldAls.User__c);}
             
         }
 
-
         if(!userIds.isEmpty()) {
-            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
-            delete accounttemMembersToDelete;
+            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id, AccountId, UserId from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
+            for(AccountTeamMember atm : accounttemMembersToDelete) {
+                for(Associated_Location__c oldAls : oldRecordMap.values()) {
+                    if(atm.AccountId == oldAls.Account__c && atm.UserId == oldAls.User__c) {
+                        atm.AccountId = oldAls.Account__c;
+                    }
+                }
+            }
+            update accounttemMembersToDelete;
         }
     }
 }
