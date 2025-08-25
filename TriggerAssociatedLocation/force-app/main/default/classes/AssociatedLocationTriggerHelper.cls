@@ -18,7 +18,7 @@ public with sharing class AssociatedLocationTriggerHelper {
         //variables to suport the insert validation
         List<AccountTeamMember> AccountTeamMembersToInsert = new List<AccountTeamMember>();
         
-
+        //loop verify if the Associated Location already has a Account Team Member
         for(Associated_Location__c iAssociatedLocation : listNewRecords) {
             Boolean repetido = false;
             for(AccountTeamMember atm : AccountTeamMemberList) {
@@ -27,7 +27,7 @@ public with sharing class AssociatedLocationTriggerHelper {
                     break; 
                 } 
             }               
-            if(!repetido) {
+            if(!repetido) {//creating a new Account Team Member for the new Associated Location
                 AccountTeamMember newAccountTeamMember = new AccountTeamMember();
                 newAccountTeamMember.AccountId = iAssociatedLocation.Account__c;
                 newAccountTeamMember.UserId = iAssociatedLocation.User__c;
@@ -39,7 +39,7 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     //method that verify if the associated location is deleted, if so it removes the user from the account team
     public static void AssociatedLocationHaveAccountTeamMember(List<Associated_Location__c> oldRecordList) {
-        
+        //gets all the userId and Account ids that needs to be deleted
         Set<Id> accountIds = new Set<Id>();
         Set<Id> userIds = new Set<Id>();
         for(Associated_Location__c al : oldRecordList) {           
@@ -50,6 +50,7 @@ public with sharing class AssociatedLocationTriggerHelper {
         List<AccountTeamMember> accountTeamMembersSameAccountSameId = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN :accountIds AND UserId IN :userIds];
 
         List<AccountTeamMember> accountTeamMembersToDelete = new List<AccountTeamMember>();
+        //loop in the accounts Team Members and delete if they have the same AccountId and UserId related to the Associated Locations that were deleted
         for(AccountTeamMember atm : accountTeamMembersSameAccountSameId) {
             if(accountIds.contains(atm.AccountId) && userIds.contains(atm.UserId)) {
                 accountTeamMembersToDelete.add(atm);
@@ -61,6 +62,7 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     //method that executes when user updates
     public static void userWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
+        //create a new Account Team Member for every alteration that was made
         List<AccountTeamMember> AccountTeamMembersToinsert = new List<AccountTeamMember>();
         for(Associated_Location__c al : newRecordMap.values()) {
             if(al.User__c != oldRecordMap.get(al.Id).User__c) {
@@ -75,10 +77,9 @@ public with sharing class AssociatedLocationTriggerHelper {
         if(AccountTeamMembersToinsert.size() > 0) insert AccountTeamMembersToinsert;
         else return;
 
-
-            
-            set<Id> accIds = new Set<Id>();
-            set<Id> userIds = new Set<Id>();
+        //looping through the Associated Locations before the update gathering the old Accounts And Users
+        set<Id> accIds = new Set<Id>();
+        set<Id> userIds = new Set<Id>();
         for(Associated_Location__c oldAls : oldRecordMap.values()) {
             if(newRecordMap.get(oldAls.Id)?.User__c == oldAls.User__c && newRecordMap.get(oldAls.Id)?.Account__c == oldAls.Account__c) {} 
             else {
@@ -87,7 +88,7 @@ public with sharing class AssociatedLocationTriggerHelper {
             
         }
 
-
+        //deleting the Account Team Members that references the old Associated Locations
         if(!userIds.isEmpty()) {
             List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
             delete accounttemMembersToDelete;
@@ -96,6 +97,7 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     //method that executes when account updates
     public static void accountWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
+        
 
         //Same code as before but the condition on the if before insert is now checking the same account instead of user
         //need fix later, to reduce code
@@ -110,10 +112,7 @@ public with sharing class AssociatedLocationTriggerHelper {
         }
 
         if(AccountTeamMembersToinsert.size() > 0) insert AccountTeamMembersToinsert;
-        else return;
-
-
-            
+        else return;            
             set<Id> accIds = new Set<Id>();
             set<Id> userIds = new Set<Id>();
         for(Associated_Location__c oldAls : oldRecordMap.values()) {// get and delete the old ones
@@ -123,7 +122,6 @@ public with sharing class AssociatedLocationTriggerHelper {
                 userIds.add(oldAls.User__c);}
             
         }
-
 
         if(!userIds.isEmpty()) {
             List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
