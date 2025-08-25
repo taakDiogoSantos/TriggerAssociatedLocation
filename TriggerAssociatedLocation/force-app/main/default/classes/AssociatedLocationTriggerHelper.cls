@@ -36,7 +36,16 @@ public with sharing class AssociatedLocationTriggerHelper {
             }
         }
         if(!accountTeamMembersToInsert.isEmpty()) {
-             insert accountTeamMembersToInsert;
+            //generate a list with the log results for every account team member inserted no the database
+            List<Database.SaveResult> results = Database.insert(accountTeamMembersToInsert ,  false);
+
+            //returns all the cases qhere the Account Team Member couldnt be inserted and why
+            for(Database.SaveResult iResult : results) {
+                if(!iResult.isSuccess()) {
+                    System.debug('failed to insert: '+ iResult.getErrors());
+                    System.debug('Object Id:  '+ iResult.getId());
+                }
+            }
         }
     }
 
@@ -59,8 +68,18 @@ public with sharing class AssociatedLocationTriggerHelper {
                 accountTeamMembersToDelete.add(atm);
             }
         }
+        if(!accountTeamMembersToDelete.isEmpty()){
+        //generate a list with the log results for every account team member inserted no the database
+            List<Database.DeleteResult> deleteResults = Database.delete(accountTeamMembersToDelete ,  false);
 
-        delete accountTeamMembersToDelete;
+            //returns all the cases qhere the Account Team Member couldnt be inserted and why
+            for(Database.DeleteResult iResult : deleteResults) {
+                if(!iResult.isSuccess()) {
+                    System.debug('failed to delete: '+ iResult.getErrors());
+                    System.debug('Object Id:  '+ iResult.getId());
+                }
+            }
+        }
     }
 
     //method that executes when user updates
@@ -76,8 +95,17 @@ public with sharing class AssociatedLocationTriggerHelper {
             }
         }
 
-        if(accountTeamMembersToinsert.size() > 0) insert AccountTeamMembersToinsert;
-        else return;
+        if(accountTeamMembersToinsert.size() > 0){
+            List<Database.SaveResult> results = Database.insert(AccountTeamMembersToinsert ,  false);
+
+            //returns all the cases qhere the Account Team Member couldnt be inserted and why
+            for(Database.SaveResult iResult : results) {
+                if(!iResult.isSuccess()) {
+                    System.debug('failed to insert: '+ iResult.getErrors());
+                    System.debug('Object Id:  '+ iResult.getId());
+                }
+            }
+        } else return;
 
         //looping through the Associated Locations before the update gathering the old Accounts And Users
         set<Id> accIds = new Set<Id>();
@@ -93,7 +121,15 @@ public with sharing class AssociatedLocationTriggerHelper {
         //deleting the Account Team Members that references the old Associated Locations
         if(!userIds.isEmpty()) {
             List<AccountTeamMember> accountTeamMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
-            delete accounttemMembersToDelete;
+
+            List<Database.DeleteResult> deleteResults = Database.delete(accountTeamMembersToDelete ,  false);
+            
+            for(Database.deleteResult iResults : deleteResults) {
+                if(!iResults.isSuccess()) {
+                    System.debug('failed to delete: '+ iResults.getErrors());
+                    System.debug('object Id: ' + iResults.getId());
+                }
+            }
         }
     }
 
@@ -111,8 +147,17 @@ public with sharing class AssociatedLocationTriggerHelper {
             }
         }
 
-        if(AccountTeamMembersToinsert.size() > 0) insert AccountTeamMembersToinsert;
-        else return;
+        if(accountTeamMembersToinsert.size() > 0){
+            List<Database.SaveResult> results = Database.insert(AccountTeamMembersToinsert ,  false);
+
+            //returns all the cases qhere the Account Team Member couldnt be inserted and why
+            for(Database.SaveResult iResult : results) {
+                if(!iResult.isSuccess()) {
+                    System.debug('failed to insert: '+ iResult.getErrors());
+                    System.debug('Object Id:  '+ iResult.getId());
+                }
+            }
+        } else return;
 
         set<Id> accIds = new Set<Id>();
         set<Id> userIds = new Set<Id>();
@@ -125,8 +170,16 @@ public with sharing class AssociatedLocationTriggerHelper {
         }
 
         if(!userIds.isEmpty()) {
-            List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
-            delete accounttemMembersToDelete;
+            List<AccountTeamMember> accountTeamMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
+
+            List<Database.DeleteResult> deleteResults = Database.delete(accountTeamMembersToDelete ,  false);
+            
+            for(Database.deleteResult iResults : deleteResults) {
+                if(!iResults.isSuccess()) {
+                    System.debug('failed to delete: '+ iResults.getErrors());
+                    System.debug('object Id: ' + iResults.getId());
+                }
+            }
         }
     }
 }
