@@ -34,7 +34,7 @@ public with sharing class AssociatedLocationTriggerHandler {
     
 
     public void AfterInsert() {
-        AssociatedLocationTriggerHelper.VerifyUserAlreadyInAccount();
+        AssociatedLocationTriggerHelper.VerifyUserAlreadyInAccount(this.newRecordList);
     }
 
    public void AfterDelete() {

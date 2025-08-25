@@ -2,9 +2,7 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     
     //method that verify if the user is already in the account team, if not it adds the user to the account team
-    public static void VerifyUserAlreadyInAccount( ) {
-        
-        List<Associated_Location__c> listNewRecords = Trigger.new;
+    public static void VerifyUserAlreadyInAccount(List<Associated_Location__c> listNewRecords) {
         
         //get AccountId from the Records to insert
         Set<Id> SetAccountIds = new Set<Id>();
@@ -97,7 +95,7 @@ public with sharing class AssociatedLocationTriggerHelper {
 
     //method that executes when account updates
     public static void accountWasUpdated(Map<Id, Associated_Location__c> oldRecordMap, Map<Id, Associated_Location__c> newRecordMap) {
-        
+
 
         //Same code as before but the condition on the if before insert is now checking the same account instead of user
         //need fix later, to reduce code
@@ -127,5 +125,5 @@ public with sharing class AssociatedLocationTriggerHelper {
             List<AccountTeamMember> accounttemMembersToDelete = [SELECT Id from AccountTeamMember where AccountId IN :accIds AND UserId IN :userIds];
             delete accounttemMembersToDelete;
         }
-
-}}
+    }
+}
