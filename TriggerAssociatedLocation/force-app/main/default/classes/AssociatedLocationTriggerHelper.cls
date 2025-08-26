@@ -7,34 +7,41 @@ public with sharing class AssociatedLocationTriggerHelper {
         //get AccountId from the Records to insert
         Set<Id> setAccountIds = new Set<Id>();
         
+        
         for(Associated_Location__c iAssociatedLocation : listNewRecords) {
             setAccountIds.add(iAssociatedLocation.Account__c);
         }
 
         //Get all the AccountTeamMembers related to the AccountIds
         List<AccountTeamMember> accountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN : setAccountIds];
+        map<String, AccountTeamMember> mapAccountTeamMember = new Map<String, AccountTeamMember>();
+        for(AccountTeamMember iAtm : accountTeamMemberList) {
+            string chaveMapa = iAtm.Account__c + iAtm.User__c;
+            mapAccountTeamMember.put(chaveMapa, iAtm);
+        }
 
         //variables to suport the insert validation
         List<AccountTeamMember> accountTeamMembersToInsert = new List<AccountTeamMember>();
+        Boolean repeated;
         
         //loop verify if the Associated Location already has a Account Team Member
         for(Associated_Location__c iAssociatedLocation : listNewRecords) {
-            Boolean repeated = false;
-
-            for(AccountTeamMember iAccountTeamMember : accountTeamMemberList) {
-                if(iAccountTeamMember.UserId == iAssociatedLocation.User__c && iAccountTeamMember.AccountId == iAssociatedLocation.Account__c) {
-                    repeated = true;
-                    break; 
-                }
+            repeated = false;
+            string userToAccountId = iAssociatedLocation.Account__c + iAssociatedLocation.User__c;
+            if(mapAccountTeamMember.containsKey(userToAccountId)) {
+                repeated = true;
+                break;
             }
+        }
 
-            if(!repeated) {//creating a new Account Team Member for the new Associated Location
+        if(!repeated) {//creating a new Account Team Member for the new Associated Location
                 AccountTeamMember newAccountTeamMember = new AccountTeamMember();
                 newAccountTeamMember.AccountId = iAssociatedLocation.Account__c;
                 newAccountTeamMember.UserId = iAssociatedLocation.User__c;
                 accountTeamMembersToInsert.add(newAccountTeamMember);
             }
-        }
+        
+
         if(!accountTeamMembersToInsert.isEmpty()) {
             //generate a list with the log results for every account team member inserted no the database
             List<Database.SaveResult> results = Database.insert(accountTeamMembersToInsert ,  false);
@@ -48,6 +55,7 @@ public with sharing class AssociatedLocationTriggerHelper {
             }
         }
     }
+
 
     //method that verify if the associated location is deleted, if so it removes the user from the account team
     public static void associatedLocationHaveAccountTeamMember(List<Associated_Location__c> oldRecordList) {
