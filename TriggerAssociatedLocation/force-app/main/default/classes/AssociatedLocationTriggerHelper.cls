@@ -16,30 +16,32 @@ public with sharing class AssociatedLocationTriggerHelper {
         List<AccountTeamMember> accountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN : setAccountIds];
         map<String, AccountTeamMember> mapAccountTeamMember = new Map<String, AccountTeamMember>();
         for(AccountTeamMember iAtm : accountTeamMemberList) {
-            string chaveMapa = iAtm.Account__c + iAtm.User__c;
+            string chaveMapa = String.valueOf(iAtm.AccountId) + String.valueOf(iAtm.userId);
             mapAccountTeamMember.put(chaveMapa, iAtm);
         }
 
         //variables to suport the insert validation
         List<AccountTeamMember> accountTeamMembersToInsert = new List<AccountTeamMember>();
         Boolean repeated;
-        
+
         //loop verify if the Associated Location already has a Account Team Member
         for(Associated_Location__c iAssociatedLocation : listNewRecords) {
             repeated = false;
-            string userToAccountId = iAssociatedLocation.Account__c + iAssociatedLocation.User__c;
+            string userToAccountId = String.valueOf(iAssociatedLocation.Account__c) + String.valueOf(iAssociatedLocation.User__c);
             if(mapAccountTeamMember.containsKey(userToAccountId)) {
                 repeated = true;
                 break;
             }
-        }
-
-        if(!repeated) {//creating a new Account Team Member for the new Associated Location
+            
+            if(!repeated) {//creating a new Account Team Member for the new Associated Location
                 AccountTeamMember newAccountTeamMember = new AccountTeamMember();
                 newAccountTeamMember.AccountId = iAssociatedLocation.Account__c;
                 newAccountTeamMember.UserId = iAssociatedLocation.User__c;
                 accountTeamMembersToInsert.add(newAccountTeamMember);
             }
+        }
+
+        
         
 
         if(!accountTeamMembersToInsert.isEmpty()) {
