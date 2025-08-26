@@ -16,6 +16,7 @@ public with sharing class AssociatedLocationTriggerHelper {
         List<AccountTeamMember> accountTeamMemberList = [SELECT Id, AccountId, UserId FROM AccountTeamMember WHERE AccountId IN : setAccountIds];
         map<String, AccountTeamMember> mapAccountTeamMember = new Map<String, AccountTeamMember>();
         for(AccountTeamMember iAtm : accountTeamMemberList) {
+            //defining the key of the map with the combination of a AccountId and UserId creating a unique code
             string chaveMapa = String.valueOf(iAtm.AccountId) + String.valueOf(iAtm.userId);
             mapAccountTeamMember.put(chaveMapa, iAtm);
         }
